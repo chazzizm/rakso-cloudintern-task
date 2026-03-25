@@ -1,0 +1,192 @@
+@import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Anton&family=Cookie&family=Poppins:wght@400;600;700&display=swap');
+
+:root {
+  --primary-gradient: linear-gradient(90deg, rgba(76,185,236,0.8), rgba(0,30,255,0.7));
+  --bg-shadow: 0 10px 40px rgba(0,0,0,0.25);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  position: relative;
+  background-color: #faf9f8;
+}
+
+/* Carousel full-screen */
+.carousel_section {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+.carousel-inner,
+.carousel-item,
+.carousel-image {
+  height: 100vh;
+  width: 100%;
+  object-fit: cover;
+}
+
+.carousel-inner::after {
+  content: "";
+  position: absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background: rgba(0,0,0,0.3); /* overlay for readability */
+  z-index: 1;
+}
+
+/* Auth/Login Card */
+#auth_section {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  width: 100%;
+  max-width: 450px;
+  padding: 40px;
+
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  box-shadow: var(--bg-shadow);
+  z-index: 10;
+
+  animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn {
+  from {opacity: 0; transform: translate(-50%, -48%);}
+  to {opacity:1; transform: translate(-50%, -50%);}
+}
+
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.logo img {
+  height: 50px;
+}
+
+.logo p {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1c1c1c;
+}
+
+/* Form container */
+.auth_container {
+  width: 100%;
+}
+
+#Log_in, #sign_up {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.role_btn {
+  display: flex;
+  gap: 15px;
+  margin: 15px 0 25px 0;
+}
+
+.role_btn .btns {
+  padding: 10px 20px;
+  border-radius: 25px;
+  border: none;
+  cursor: pointer;
+  background-color: rgba(93,102,116,0.15);
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.role_btn .btns:hover,
+.role_btn .btns.active {
+  background: var(--primary-gradient);
+  color: #fff;
+}
+
+.authsection, .user_signup {
+  width: 100%;
+  display: none;
+  animation: slideIn 0.5s ease;
+}
+
+.user_login.active, .employee_login.active, .user_signup.active {
+  display: block;
+}
+
+@keyframes slideIn {
+  from {opacity: 0; transform: translateY(10px);}
+  to {opacity:1; transform: translateY(0);}
+}
+
+.form-floating {
+  margin-bottom: 15px;
+  width: 100%;
+}
+
+.auth_btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 10px;
+  border: none;
+  background: #ff7930;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, filter 0.2s;
+}
+
+.auth_btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+
+.footer_line {
+  margin-top: 20px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.page_move_btn {
+  color: #ff7930;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #auth_section {
+    width: 90%;
+    padding: 30px;
+  }
+
+  .role_btn .btns {
+    padding: 8px 15px;
+    font-size: 14px;
+  }
+}
