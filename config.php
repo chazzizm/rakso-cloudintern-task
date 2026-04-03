@@ -1,9 +1,9 @@
 <?php
 
 $server = "localhost";
-$username = "bluebird_user";
-$password = "password";
-$database = "bluebirdhotel";
+$username = "root";
+$password = "";
+$database = "keebmods_db"; // We will create this in phpMyAdmin next!
 
 $conn = mysqli_connect($server,$username,$password,$database);
 
