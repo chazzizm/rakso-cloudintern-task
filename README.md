@@ -1,40 +1,35 @@
 # KeebMods - VAPT Training Environment
 
-KeebMods is a deliberately vulnerable e-commerce web application built using PHP and MySQL. It is designed specifically for Vulnerability Assessment and Penetration Testing (VAPT) exercises. 
+Welcome to KeebMods, an intentionally vulnerable e-commerce web application built for Vulnerability Assessment and Penetration Testing (VAPT) exercises. 
 
-It features a modern, responsive UI to simulate a realistic target environment while intentionally containing critical security flaws for educational purposes.
+## 🛠️ Setup Instructions
+1. Clone or download this repository.
+2. Move the `rakso-cloudintern-task` folder into your XAMPP `htdocs` directory.
+3. Open XAMPP and start **Apache** and **MySQL**.
+4. Navigate to `http://localhost/phpmyadmin`.
+5. Create a new database named `keebmods_db`.
+6. Import the included `keebmods_db.sql` file into the new database.
+7. Access the site at `http://localhost`.
 
-⚠️ **WARNING:** This application is highly vulnerable. **Do not** host this on a public web server. It should only be run locally or in an isolated testing environment.
+## 🎯 VAPT Scope (Level 2)
+This application contains several realistic web vulnerabilities.
 
-## 🎯 Included Vulnerabilities
-This application contains the following OWASP Top 10 vulnerabilities:
-*   **SQL Injection (SQLi):** Present in the login portal, search bar, and user profile parameters.
-*   **Cross-Site Scripting (XSS):** 
-    *   *Reflected XSS:* Search functionality.
-    *   *Stored XSS:* Product reviews and comment section.
-*   **Broken Access Control:** Hidden administrative dashboard accessible without proper role verification.
-*   **Insecure Direct Object Reference (IDOR):** Unrestricted access to private user order histories via URL parameter manipulation.
-*   **Business Logic Flaw:** Client-side trust issue allowing price manipulation during the checkout process.
+**Target Areas:**
+*   **Authentication & Database:** Test for SQL Injection (Note: Error reporting has been disabled. You may need to rely on Blind SQLi techniques).
+*   **Session & Access Control:** Attempt to access privileged administrative functions without proper authorization (Broken Access Control).
+*   **Input Validation:** Test for Cross-Site Scripting (XSS). Note: Basic filters are in place, requiring payload evasion techniques.
+*   **Data Exposure:** Look for Insecure Direct Object Reference (IDOR) vulnerabilities. Pay attention to how user data is passed in URLs.
+*   **Business Logic:** Attempt to manipulate e-commerce functions (e.g., checkout totals).
 
-## ⚙️ Setup Instructions
+## 🔐 Default Test Accounts
 
-To run this environment locally, you will need a local web server environment like [XAMPP](https://www.apachefriends.org/index.html).
+**Admin Account**
+*   **Username:** `keeb_admin`
+*   **Password:** `SuperSecretAdmin123!`
 
-1. **Clone the Repository**
-   Clone or download this repository into your local web server directory (e.g., `C:\xampp\htdocs\rakso-cloudintern-task`).
+**Standard Customer Account**
+*   **Username:** `test_user`
+*   **Password:** `password123`
 
-2. **Start the Server**
-   Open the XAMPP Control Panel and start both the **Apache** and **MySQL** modules.
-
-3. **Database Configuration**
-   * Navigate to `http://localhost/phpmyadmin`.
-   * Create a new database named exactly `keebmods_db`.
-   * Click on the new database, go to the **Import** tab, and upload the `keebmods_db.sql` file included in this repository.
-   * Click **Import** at the bottom to build the necessary tables and populate the default data.
-
-4. **Launch the Application**
-   Open your browser and navigate to: `http://localhost/rakso-cloudintern-task/index.php`
-
-## 🧪 Default Test Accounts
-*   **User:** `test_user` / **Password:** `password123`
-*   **Admin:** `admin` / **Password:** `admin123` *(Note: Try to find the admin panel without using this account!)*
+---
+*Disclaimer: This project is strictly for educational and authorized testing purposes within a closed local environment.*

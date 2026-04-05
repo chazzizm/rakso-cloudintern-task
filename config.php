@@ -1,4 +1,5 @@
 <?php
+mysqli_report(MYSQLI_REPORT_OFF); // Turns off detailed database errors
 
 $server = "localhost";
 $username = "root";

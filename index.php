@@ -8,6 +8,7 @@ include 'config.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KeebMods | Premium Mechanical Keyboard Parts</title>
+    <link rel="icon" type="image/png" href="image/favicon.png">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Your Custom CSS file -->
@@ -47,7 +48,15 @@ include 'config.php';
         .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
         .product-card { background-color: white; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; flex-direction: column;}
         .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-color: var(--primary-blue); }
-        .product-image { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px; background-color: #f1f5f9; }
+        .product-image { 
+            width: 100%; 
+            height: 200px; /* Forces all images to be exactly this tall */
+            object-fit: cover; /* The magic trick: crops the image to fit the box without stretching */
+            object-position: center; /* Ensures the crop focuses on the middle of the image */
+            border-radius: 8px; 
+            margin-bottom: 15px; 
+            background-color: #f1f5f9; 
+        }
         
         .product-desc { color: #64748b; line-height: 1.5; margin-bottom: 20px; flex-grow: 1;}
         .price { font-size: 1.5rem; font-weight: bold; color: var(--primary-blue); margin-bottom: 15px; }
@@ -58,26 +67,20 @@ include 'config.php';
 <body>
 
     <header>
-        <h1>Keeb<span>Mods</span></h1>
+        <h1><a href="index.php" style="margin:0; padding:0; color:white; text-decoration:none;">Keeb<span>Mods</span></a></h1>
         <div class="nav-right">
-            <form class="search-bar" action="search.php" method="GET">
-                <input type="text" name="query" placeholder="Search KTT, Gateron..." required>
-                <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
-            </form>
-            
-            <!-- The Clickable Cart Trigger -->
             <div class="cart-icon" onclick="toggleCart()">
                 <i class="fa-solid fa-cart-shopping"></i> Cart
                 <span class="cart-count" id="cartBadge">0</span>
             </div>
-
             <?php if(isset($_SESSION['username'])): ?>
-                <!-- This is now a clickable link to profile.php -->
-                <a href="profile.php" style="color: #93c5fd; font-weight: bold; margin-left: 10px; text-decoration: none;">Hi, <?php echo $_SESSION['username']; ?>!</a>
+                <?php if($_SESSION['username'] === 'keeb_admin'): ?>
+                    <a href="admin_panel.php" style="color: #ef4444; font-weight: bold; margin-left: 10px; text-decoration: none;"><i class="fa-solid fa-shield-halved"></i> Admin Panel</a>
+                <?php endif; ?>
+                <a href="profile.php?user=<?php echo base64_encode($_SESSION['username']); ?>" style="color: #93c5fd; font-weight: bold; margin-left: 10px; text-decoration: none;">Hi, <?php echo $_SESSION['username']; ?>!</a>
                 <a href="logout.php">Logout</a>
             <?php else: ?>
                 <a href="login.php" style="margin-left: 10px;">Login</a>
-                <a href="register.php">Sign Up</a>
             <?php endif; ?>
         </div>
     </header>

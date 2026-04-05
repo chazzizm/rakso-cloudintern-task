@@ -2,34 +2,10 @@
 session_start();
 include 'config.php';
 
-// VAPT FLAW: Broken Access Control!
-// The server checks if *anyone* is logged in, but fails to verify if they are an admin.
-// A normal customer can type this URL and gain full control of the inventory.
+// VAPT FLAW: Broken Access Control (BAC)
+// It verifies that a user is logged in, but fails to check if they are actually an Admin!
 if (!isset($_SESSION['username'])) {
     header("Location: login.php");
-    exit();
-}
-
-// Handle Adding a Product
-if (isset($_POST['add_product'])) {
-    $name = $_POST['name'];
-    $price = $_POST['price'];
-    $desc = $_POST['description'];
-    $image = $_POST['image_file'];
-
-    // VAPT FLAW: Still vulnerable to SQL Injection here too!
-    $sql = "INSERT INTO products (name, description, price, image_file) VALUES ('$name', '$desc', '$price', '$image')";
-    mysqli_query($conn, $sql);
-    header("Location: admin_panel.php?success=added");
-    exit();
-}
-
-// Handle Deleting a Product
-if (isset($_GET['delete_id'])) {
-    $del_id = $_GET['delete_id']; // VAPT Flaw: Unsanitized input
-    $sql = "DELETE FROM products WHERE id = $del_id";
-    mysqli_query($conn, $sql);
-    header("Location: admin_panel.php?success=deleted");
     exit();
 }
 ?>
@@ -37,114 +13,112 @@ if (isset($_GET['delete_id'])) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Command Center | KeebMods</title>
+    <title>Admin Dashboard | KeebMods</title>
+    <link rel="icon" type="image/png" href="image/favicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary-blue: #3b82f6; --deep-blue: #1e3a8a; --slate: #1e293b; --light-gray: #f8fafc; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--light-gray); color: #334155; margin: 0; padding: 0; }
+        :root { --primary-blue: #3b82f6; --deep-blue: #1e3a8a; --danger-red: #ef4444; --dark-red: #991b1b; --pure-white: #ffffff; --light-gray: #f8fafc; --slate: #334155; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--light-gray); color: var(--slate); margin: 0; padding: 0; }
         
-        /* Dark Admin Header */
-        header { background: var(--slate); color: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        header h1 { margin: 0; font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #f8fafc; }
-        header h1 span { color: #ef4444; } /* Red accent for admin */
-        header a { color: white; text-decoration: none; font-weight: bold; font-size: 0.9rem; }
+        header { background: var(--dark-red); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-bottom: 4px solid var(--danger-red); }
+        header h1 { margin: 0; font-size: 24px; letter-spacing: 2px; color: white; font-weight: 900; text-transform: uppercase; }
+        header h1 span { color: #fca5a5; }
+        header a { color: white; text-decoration: none; font-weight: bold; margin-left: 20px; transition: 0.3s; }
+        header a:hover { color: #fecaca; }
         
-        .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
-        .alert { background: #dcfce7; color: #166534; padding: 15px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #bbf7d0; font-weight: bold; }
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
         
-        /* Admin Panels */
-        .admin-card { background: white; border-radius: 8px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-bottom: 30px; }
-        .admin-card h2 { margin-top: 0; color: var(--slate); border-bottom: 2px solid var(--primary-blue); padding-bottom: 10px; display: inline-block; }
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+        .dashboard-header h2 { color: var(--dark-red); margin: 0; font-size: 2rem; }
         
-        /* Form Styling */
-        form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .full-width { grid-column: 1 / -1; }
-        input, textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; box-sizing: border-box; }
-        button { background-color: var(--primary-blue); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        button:hover { background-color: #2563eb; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+        .stat-card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 5px solid var(--primary-blue); }
+        .stat-card.red { border-left-color: var(--danger-red); }
+        .stat-card h3 { margin: 0 0 10px 0; color: #64748b; font-size: 1rem; text-transform: uppercase; }
+        .stat-card .value { font-size: 2.5rem; font-weight: bold; color: var(--deep-blue); }
         
-        /* Inventory Table */
+        .admin-section { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 30px; }
+        .admin-section h3 { color: var(--deep-blue); margin-top: 0; border-bottom: 2px solid var(--primary-blue); padding-bottom: 10px; display: inline-block; }
+        
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #e2e8f0; }
-        th { background-color: #f1f5f9; color: var(--slate); }
-        .btn-delete { background-color: #ef4444; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.85rem; font-weight: bold; }
-        .btn-delete:hover { background-color: #dc2626; }
+        th, td { text-align: left; padding: 12px 15px; border-bottom: 1px solid #e2e8f0; }
+        th { background-color: #f1f5f9; color: var(--slate); font-weight: bold; }
+        tr:hover { background-color: #f8fafc; }
+        
+        .btn-danger { background-color: var(--danger-red); color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85rem; }
+        .btn-danger:hover { background-color: #dc2626; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>KeebMods <span>Admin Center</span></h1>
+        <h1>Keeb<span>Mods</span> // ADMIN</h1>
         <div>
-            Logged in as: <strong><?php echo $_SESSION['username']; ?></strong>
-            <a href="index.php" style="margin-left: 20px; color: #94a3b8;">&larr; Back to Store</a>
+            <a href="index.php"><i class="fa-solid fa-store"></i> Back to Store</a>
+            <a href="logout.php"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
         </div>
     </header>
 
     <div class="container">
-        
-        <?php 
-        if(isset($_GET['success'])) {
-            $msg = $_GET['success'] == 'added' ? 'Product successfully added to inventory.' : 'Product deleted permanently.';
-            echo "<div class='alert'><i class='fa-solid fa-check'></i> $msg</div>";
-        }
-        ?>
-
-        <!-- Add Product Form -->
-        <div class="admin-card">
-            <h2><i class="fa-solid fa-plus"></i> Add New Product</h2>
-            <form method="POST" action="">
-                <div>
-                    <label style="font-weight:bold; font-size:0.9rem; color:#64748b;">Product Name</label>
-                    <input type="text" name="name" required placeholder="e.g., Gateron Milky Yellow">
-                </div>
-                <div>
-                    <label style="font-weight:bold; font-size:0.9rem; color:#64748b;">Price (₱)</label>
-                    <input type="number" step="0.01" name="price" required placeholder="15.00">
-                </div>
-                <div class="full-width">
-                    <label style="font-weight:bold; font-size:0.9rem; color:#64748b;">Description</label>
-                    <textarea name="description" rows="2" required placeholder="Enter product specs..."></textarea>
-                </div>
-                <div class="full-width">
-                    <label style="font-weight:bold; font-size:0.9rem; color:#64748b;">Image Filename (must exist in 'image' folder)</label>
-                    <input type="text" name="image_file" required placeholder="e.g., gateron-yellow.jpg">
-                </div>
-                <div class="full-width">
-                    <button type="submit" name="add_product">Deploy to Storefront</button>
-                </div>
-            </form>
+        <div class="dashboard-header">
+            <h2>System Overview</h2>
+            <span style="background: var(--danger-red); color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.9rem;">
+                <i class="fa-solid fa-triangle-exclamation"></i> VAPT Target Mode Active
+            </span>
         </div>
 
-        <!-- Inventory Management Table -->
-        <div class="admin-card">
-            <h2><i class="fa-solid fa-box"></i> Current Inventory</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Users</h3>
+                <div class="value">
+                    <?php 
+                    $user_count = mysqli_query($conn, "SELECT COUNT(*) as count FROM users");
+                    echo mysqli_fetch_assoc($user_count)['count']; 
+                    ?>
+                </div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Products</h3>
+                <div class="value">
+                    <?php 
+                    $prod_count = mysqli_query($conn, "SELECT COUNT(*) as count FROM products");
+                    echo mysqli_fetch_assoc($prod_count)['count']; 
+                    ?>
+                </div>
+            </div>
+            <div class="stat-card red">
+                <h3>System Alerts</h3> //props lang yung 3 hahahahaha
+                <div class="value" style="color: var(--danger-red);">3</div>
+            </div>
+        </div>
+
+        <div class="admin-section">
+            <h3>Recent Users Registered</h3>
             <table>
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Product Name</th>
-                        <th>Price</th>
+                        <th>Username</th>
+                        <th>Role</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
-                    $sql = "SELECT * FROM products ORDER BY id ASC";
-                    $result = mysqli_query($conn, $sql);
-                    while($row = mysqli_fetch_assoc($result)) {
+                    $users = mysqli_query($conn, "SELECT id, username, role FROM users ORDER BY id DESC LIMIT 5");
+                    while($u = mysqli_fetch_assoc($users)) {
                         echo "<tr>";
-                        echo "<td>" . $row['id'] . "</td>";
-                        echo "<td><strong>" . htmlspecialchars($row['name']) . "</strong></td>";
-                        echo "<td>₱" . number_format($row['price'], 2) . "</td>";
-                        echo "<td><a href='admin_panel.php?delete_id=" . $row['id'] . "' class='btn-delete'><i class='fa-solid fa-trash'></i> Delete</a></td>";
+                        echo "<td>" . $u['id'] . "</td>";
+                        echo "<td><strong>" . htmlspecialchars($u['username']) . "</strong></td>";
+                        echo "<td>" . htmlspecialchars($u['role']) . "</td>";
+                        echo "<td><button class='btn-danger'>Ban User</button></td>";
                         echo "</tr>";
                     }
                     ?>
                 </tbody>
             </table>
         </div>
-
     </div>
+
 </body>
 </html>

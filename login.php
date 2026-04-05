@@ -10,7 +10,8 @@ if (isset($_POST['login'])) {
     $sql = "SELECT * FROM users WHERE username = '$username' AND password = '$password'";
     $result = mysqli_query($conn, $sql);
 
-    if (mysqli_num_rows($result) > 0) {
+    // FIX: Check if $result is valid before checking row count. Fails silently if SQL breaks.
+    if ($result && mysqli_num_rows($result) > 0) {
         $row = mysqli_fetch_assoc($result);
         $_SESSION['username'] = $row['username'];
         $_SESSION['role'] = $row['role']; 
@@ -26,6 +27,7 @@ if (isset($_POST['login'])) {
 <html lang="en">
 <head>
     <title>Login | KeebMods</title>
+    <link rel="icon" type="image/png" href="image/favicon.png">
     <link rel="stylesheet" href="css/style.css">
     <style>
         :root { --primary-blue: #3b82f6; --deep-blue: #1e3a8a; --light-gray: #f8fafc; --slate: #334155; }
