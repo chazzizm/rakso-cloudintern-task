@@ -27,7 +27,7 @@ if (isset($_POST['login'])) {
 <html lang="en">
 <head>
     <title>Login | KeebMods</title>
-    <link rel="icon" type="image/png" href="image/favicon.png">
+    <link rel="icon" type="image/png" href="image/favicon.png?v=2">
     <link rel="stylesheet" href="css/style.css">
     <style>
         :root { --primary-blue: #3b82f6; --deep-blue: #1e3a8a; --light-gray: #f8fafc; --slate: #334155; }

@@ -25,7 +25,7 @@ if (isset($_POST['register'])) {
 <html lang="en">
 <head>
     <title>Register | KeebMods</title>
-    <link rel="icon" type="image/png" href="image/favicon.png">
+    <link rel="icon" type="image/png" href="image/favicon.png?v=2">
     <style>
         body { font-family: Arial, sans-serif; background-color: #0f172a; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .auth-box { background-color: #1e293b; padding: 40px; border-radius: 12px; width: 300px; text-align: center; border: 1px solid #334155; }

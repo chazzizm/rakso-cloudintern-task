@@ -14,7 +14,7 @@ if (!isset($_SESSION['username'])) {
 <head>
     <meta charset="UTF-8">
     <title>Admin Dashboard | KeebMods</title>
-    <link rel="icon" type="image/png" href="image/favicon.png">
+    <link rel="icon" type="image/png" href="image/faviconadmin.png?v=2">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --primary-blue: #3b82f6; --deep-blue: #1e3a8a; --danger-red: #ef4444; --dark-red: #991b1b; --pure-white: #ffffff; --light-gray: #f8fafc; --slate: #334155; }
