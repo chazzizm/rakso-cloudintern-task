@@ -7,6 +7,7 @@ include 'config.php';
 <head>
     <meta charset="UTF-8">
     <title>Search Results | KeebMods</title>
+    <link rel="icon" type="image/png" href="image/favicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
     <style>
@@ -44,20 +45,20 @@ include 'config.php';
 <body>
 
     <header>
-        <!-- Clicking the logo takes you back home -->
         <h1><a href="index.php" style="margin:0; padding:0; color:white; text-decoration:none;">Keeb<span>Mods</span></a></h1>
         <div class="nav-right">
-            <form class="search-bar" action="search.php" method="GET">
-                <input type="text" name="query" placeholder="Search KTT, Gateron..." required>
-                <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
-            </form>
-            
+            <div class="cart-icon" onclick="toggleCart()">
+                <i class="fa-solid fa-cart-shopping"></i> Cart
+                <span class="cart-count" id="cartBadge">0</span>
+            </div>
             <?php if(isset($_SESSION['username'])): ?>
-                <span style="color: #93c5fd; font-weight: bold; margin-left: 10px;">Hi, <?php echo $_SESSION['username']; ?>!</span>
+                <?php if($_SESSION['username'] === 'keeb_admin'): ?>
+                    <a href="admin_panel.php" style="color: #ef4444; font-weight: bold; margin-left: 10px; text-decoration: none;"><i class="fa-solid fa-shield-halved"></i> Admin Panel</a>
+                <?php endif; ?>
+                <a href="profile.php?user=<?php echo base64_encode($_SESSION['username']); ?>" style="color: #93c5fd; font-weight: bold; margin-left: 10px; text-decoration: none;">Hi, <?php echo $_SESSION['username']; ?>!</a>
                 <a href="logout.php">Logout</a>
             <?php else: ?>
                 <a href="login.php" style="margin-left: 10px;">Login</a>
-                <a href="register.php">Sign Up</a>
             <?php endif; ?>
         </div>
     </header>

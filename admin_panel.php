@@ -87,7 +87,7 @@ if (!isset($_SESSION['username'])) {
                 </div>
             </div>
             <div class="stat-card red">
-                <h3>System Alerts</h3> //props lang yung 3 hahahahaha
+                <h3>System Alerts</h3>
                 <div class="value" style="color: var(--danger-red);">3</div>
             </div>
         </div>

@@ -7,7 +7,9 @@ $id = isset($_GET['id']) ? $_GET['id'] : 1;
 // Handle Review Submission
 if (isset($_POST['submit_review'])) {
     $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Anonymous';
-    $review_text = addslashes($_POST['review_text']); // Fixes the crash, but keeps the XSS flaw intact!
+    // VAPT FLAW: A weak filter that only removes exact lowercase <script> tags
+    $review_text = str_replace('<script>', '', $_POST['review_text']);
+    $review_text = addslashes($review_text);
     
     $insert_sql = "INSERT INTO reviews (product_id, username, review_text) VALUES ($id, '$username', '$review_text')";
     mysqli_query($conn, $insert_sql);
@@ -31,6 +33,7 @@ if (!$product) {
 <head>
     <meta charset="UTF-8">
     <title><?php echo htmlspecialchars($product['name']); ?> | KeebMods</title>
+    <link rel="icon" type="image/png" href="image/favicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --primary-blue: #3b82f6; --deep-blue: #1e3a8a; --pure-white: #ffffff; --light-gray: #f8fafc; --slate: #334155; }
@@ -50,7 +53,15 @@ if (!$product) {
         .container { max-width: 1000px; margin: 120px auto 50px auto; padding: 0 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 50px; }
         @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
         
-        .product-image { width: 100%; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); background-color: white; }
+        .product-image { 
+            width: 100%; 
+            height: 200px; /* Forces all images to be exactly this tall */
+            object-fit: cover; /* The magic trick: crops the image to fit the box without stretching */
+            object-position: center; /* Ensures the crop focuses on the middle of the image */
+            border-radius: 8px; 
+            margin-bottom: 15px; 
+            background-color: #f1f5f9; 
+        }
         .product-info h2 { font-size: 2.5rem; color: var(--deep-blue); margin-top: 0; margin-bottom: 10px;}
         .product-info .price { font-size: 2rem; color: var(--primary-blue); font-weight: bold; margin-bottom: 20px; }
         .product-info p { font-size: 1.1rem; line-height: 1.6; color: #64748b; margin-bottom: 30px; }
@@ -73,7 +84,10 @@ if (!$product) {
                 <span class="cart-count" id="cartBadge">0</span>
             </div>
             <?php if(isset($_SESSION['username'])): ?>
-                <span style="color: #93c5fd; font-weight: bold; margin-left: 10px;">Hi, <?php echo $_SESSION['username']; ?>!</span>
+                <?php if($_SESSION['username'] === 'keeb_admin'): ?>
+                    <a href="admin_panel.php" style="color: #ef4444; font-weight: bold; margin-left: 10px; text-decoration: none;"><i class="fa-solid fa-shield-halved"></i> Admin Panel</a>
+                <?php endif; ?>
+                <a href="profile.php?user=<?php echo base64_encode($_SESSION['username']); ?>" style="color: #93c5fd; font-weight: bold; margin-left: 10px; text-decoration: none;">Hi, <?php echo $_SESSION['username']; ?>!</a>
                 <a href="logout.php">Logout</a>
             <?php else: ?>
                 <a href="login.php" style="margin-left: 10px;">Login</a>
@@ -104,8 +118,14 @@ if (!$product) {
             <h3 style="color: var(--deep-blue); margin-top: 0; border-bottom: 2px solid var(--primary-blue); padding-bottom: 10px; display: inline-block;">Customer Reviews</h3>
             
             <form method="POST" style="margin-bottom: 30px;">
-                <textarea name="review_text" rows="4" style="width: 100%; padding: 15px; border-radius: 8px; border: 1px solid #cbd5e1; margin-bottom: 15px; font-family: inherit; resize: vertical; box-sizing: border-box;" placeholder="Leave a review... (VAPT Target: Try injecting HTML/JS here!)" required></textarea>
-                <button type="submit" name="submit_review" style="background-color: var(--primary-blue); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold;">Post Review</button>
+            <?php 
+             // Check if the logged-in user is the admin to show the hint
+            $placeholder_text = (isset($_SESSION['username']) && strtolower($_SESSION['username']) === 'admin') 
+                ? "Leave a review... (VAPT Target: Try injecting HTML/JS here!)" 
+                : "Leave a review..."; 
+            ?>
+            <textarea name="review_text" rows="4" style="width: 100%; padding: 15px; border-radius: 8px; border: 1px solid #cbd5e1; margin-bottom: 15px; font-family: inherit; resize: vertical; box-sizing: border-box;" placeholder="<?php echo $placeholder_text; ?>" required></textarea>
+            <button type="submit" name="submit_review" style="background-color: var(--primary-blue); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold;">Post Review</button>
             </form>
 
             <div>

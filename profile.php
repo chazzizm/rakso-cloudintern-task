@@ -11,7 +11,8 @@ if (!isset($_SESSION['username'])) {
 // VAPT FLAW: IDOR (Insecure Direct Object Reference)
 // The code looks at the URL parameter to decide whose orders to show.
 // It fails to verify if the person logged in actually matches the 'user' in the URL.
-$target_user = isset($_GET['user']) ? $_GET['user'] : $_SESSION['username'];
+// VAPT FLAW: IDOR hidden behind basic Base64 encoding
+$target_user = isset($_GET['user']) ? base64_decode($_GET['user']) : $_SESSION['username'];
 
 // Also vulnerable to SQL Injection!
 $sql = "SELECT * FROM orders WHERE username = '$target_user' ORDER BY order_date DESC";
@@ -22,6 +23,7 @@ $result = mysqli_query($conn, $sql);
 <head>
     <meta charset="UTF-8">
     <title><?php echo htmlspecialchars($target_user); ?>'s Profile | KeebMods</title>
+    <link rel="icon" type="image/png" href="image/favicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --primary-blue: #3b82f6; --deep-blue: #1e3a8a; --pure-white: #ffffff; --light-gray: #f8fafc; --slate: #334155; }
